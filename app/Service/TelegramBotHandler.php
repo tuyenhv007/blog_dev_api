@@ -2,38 +2,60 @@
 
 namespace App\Service;
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+
 class TelegramBotHandler
 {
     public $bot_token;
     public $channel;
-    public $chat_bot_url;
+    public $api_url;
+    public $send_url;
 
-    public function __construct($bot_token, $channel)
+    public function __construct()
     {
         $this->bot_token = env("TELEGRAM_BOT_TOKEN");
         $this->channel = env("TELEGRAM_CHANNEL");
-        $this->chat_bot_url = env("TELEGRAM_CHAT_BOT_URL");
+        $this->api_url = env("TELEGRAM_CHAT_BOT_URL");
+        $this->send_url = $this->api_url . $this->bot_token . '/sendMessage?chat_id=' . $this->channel . "&text=";
     }
 
+    /** Send message necessary in the function
+     * @param $message
+     * @return mixed
+     */
     public function sendMessage($message)
     {
-        $url_send = $this->chat_bot_url . $this->bot_token . '/sendMessage';
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url_send,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 360,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'chat_id=' . $this->channel . '&text=' . $message,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded'
-            ),
-        ));
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $result = $this->sendApi($message);
+        return json_decode($result->body());
+    }
+
+    /** Send message error to channel telegram
+     * @param $server
+     * @param $api
+     * @param $error
+     * @param $paramInput
+     * @return mixed
+     */
+    public function sendErrorLog($server, $api, $error, $paramInput)
+    {
+        $message = 'Thời gian: ' . Carbon::now() . "\n" .
+            'Server: ' . $server .  "\n" .
+            'Api: ' . $api . "\n" .
+            'Lỗi: ' . $error . "\n" .
+            'Data: ' . $paramInput . "\n";
+        $result = $this->sendApi($message);
+        return json_decode($result->body());
+    }
+
+    /** Send message to Api chat bot telegram
+     * @param $message
+     * @return \Illuminate\Http\Client\Response
+     */
+    public function sendApi($message)
+    {
+        $result = Http::get($this->send_url . $message . "&parse_mode=HTML");
+        return $result;
     }
 
 
