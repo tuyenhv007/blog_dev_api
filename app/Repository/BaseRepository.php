@@ -6,7 +6,12 @@ use Illuminate\Support\Facades\DB;
 
 abstract class BaseRepository implements BaseInterface
 {
+    const DESC_SORT = 'DESC';
+    const ASC_SORT = 'ASC';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
     protected $model;
+
     public function __construct()
     {
         $this->setModel();
@@ -137,5 +142,10 @@ abstract class BaseRepository implements BaseInterface
     public function find_one($key, $value)
     {
         // TODO: Implement find_one() method.
+    }
+
+    public function count($condition)
+    {
+        // TODO: Implement count() method.
     }
 }

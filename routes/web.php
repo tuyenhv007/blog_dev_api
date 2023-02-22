@@ -15,3 +15,4 @@ use App\Http\Controllers\UserController;
 */
 
 Route::get('/demo',[UserController::class,'index']);
+Route::post('/user/signup',[UserController::class,'signUp']);
