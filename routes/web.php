@@ -14,5 +14,7 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::get('/demo',[UserController::class,'index']);
+Route::get('/',function () {
+    return view('welcome');
+});
 Route::post('/user/signup',[UserController::class,'signUp']);
