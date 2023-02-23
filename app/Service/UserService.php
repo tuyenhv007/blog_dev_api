@@ -19,7 +19,7 @@ class UserService
     public function validateCreateUser($request)
     {
         $validate = Validator::make($request->all(), [
-            'email' => 'required|email|max:255|unique:user',
+            'email' => 'required|email|max:255|unique:users',
             'password' => 'required|min:8'
         ], [
             'email.required' => 'Bạn chưa nhập email!',

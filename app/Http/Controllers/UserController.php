@@ -39,11 +39,12 @@ class UserController extends Controller
             ]);
         }
         $userCreate = $this->userService->createUser($request);
-        echo "<pre>";
-        echo '$request: ';
-        print_r($request->all());
-        echo "</pre>";
-        die();
+        // Send email
+        return \response()->json([
+            'status' => Response::HTTP_OK,
+            'message' => 'Success!',
+            'data' => $userCreate
+        ]);
 
     }
 }
