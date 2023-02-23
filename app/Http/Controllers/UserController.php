@@ -19,18 +19,19 @@ class UserController extends Controller
     //
     public function index()
     {
-        $user_db = User::all();
-
-        $result = response()->json([
-                'status' => Response::HTTP_OK,
-                'data' => $user_db
-            ]);
-        return $result;
+//        $user_db = User::all();
+//
+//        $result = response()->json([
+//                'status' => Response::HTTP_OK,
+//                'data' => $user_db
+//            ]);
+//        return $result;
     }
 
     public function signUp(Request $request)
     {
         $validate = $this->userService->validateCreateUser($request);
+
         if ($validate->fails()) {
             return \response()->json([
                 'status' => Response::HTTP_BAD_REQUEST,
@@ -43,5 +44,6 @@ class UserController extends Controller
         print_r($request->all());
         echo "</pre>";
         die();
+
     }
 }

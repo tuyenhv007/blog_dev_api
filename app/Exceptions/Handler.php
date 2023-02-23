@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        $param = json_encode($this->request->all());
+        $paramInput = json_encode($this->request->all());
         $env = env('APP_ENV');
         $uri = $this->request->getRequestUri();
         $message = [
@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
             'message' => $exception->getMessage(),
 
         ];
-        $this->telegrambot->sendErrorLog($env, $uri, json_encode($message), $param);
-        parent::report($exception);
+        $this->telegrambot->sendErrorLog($env, $uri, json_encode($message), $paramInput);
+//        parent::report($exception);
     }
 }

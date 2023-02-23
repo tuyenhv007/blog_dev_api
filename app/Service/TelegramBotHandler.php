@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Http;
 
 class TelegramBotHandler
 {
-    public $bot_token;
-    public $channel;
-    public $api_url;
-    public $send_url;
+    private $bot_token;
+    private $channel;
+    private $api_url;
+    private $send_url;
 
     public function __construct()
     {
@@ -37,7 +37,7 @@ class TelegramBotHandler
      * @param $paramInput
      * @return mixed
      */
-    public function sendErrorLog($server, $api, $error, $paramInput)
+    public function sendErrorLog($server, $api, $error, $paramInput = "")
     {
         $message = 'Thời gian: ' . Carbon::now() . "\n" .
             'Server: ' . $server .  "\n" .
