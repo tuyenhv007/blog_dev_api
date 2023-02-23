@@ -19,8 +19,8 @@ class CreateCommentsTable extends Migration
             $table->unsignedBigInteger('parentId');
             $table->string('title');
             $table->longText('content');
-            $table->tinyInteger('published');
-            $table->timestamp('publishedAt');
+            $table->tinyInteger('published')->nullable();
+            $table->timestamp('publishedAt')->nullable();
             $table->timestamps();
         });
     }

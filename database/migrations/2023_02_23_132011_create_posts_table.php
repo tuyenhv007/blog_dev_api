@@ -19,10 +19,10 @@ class CreatePostsTable extends Migration
             $table->unsignedBigInteger('parentId');
             $table->string('title');
             $table->string('slug');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->longText('content');
-            $table->tinyInteger('published');
-            $table->timestamp('publishedAt');
+            $table->tinyInteger('published')->nullable();
+            $table->timestamp('publishedAt')->nullable();
             $table->timestamps();
         });
 

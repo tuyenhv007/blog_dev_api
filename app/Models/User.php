@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\BaseModel;
+use App\Models\Post;
+use App\Models\Notification;
 
 class User extends BaseModel
 {
@@ -21,5 +23,15 @@ class User extends BaseModel
     const LAST_LOGIN_AT_COLUMN = 'lastLoginAt';
 
     protected $table = 'users';
+
+    public function post()
+    {
+        return $this->hasMany(Post::class, Post::USER_ID_COLUMN);
+    }
+
+    public function notification()
+    {
+        return $this->hasMany(Notification::class, Notification::USER_ID_COLUMN);
+    }
 
 }
