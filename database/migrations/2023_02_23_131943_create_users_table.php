@@ -21,6 +21,8 @@ class CreateUsersTable extends Migration
             $table->string('mobile')->unique()->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->integer('otpCode');
+            $table->timestamp('validOtpTime');
             $table->string('status');
             $table->string('avatar')->nullable();
             $table->longText('webToken')->nullable();

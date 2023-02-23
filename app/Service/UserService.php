@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\Models\User;
 use App\Repository\UserRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -37,11 +39,19 @@ class UserService
         $email = $request->get('email');
         $password = $request->get('password');
         $password_hash = Hash::make($password);
+        $otpCode = rand(100000, 999999);
+        $currentTime = Carbon::now();
+        $timeExpireOtp = $currentTime->addMinutes(10)->format('Y-m-d H:i:s');
         $createData = [
-            'email' => $email,
-            'password' => $password_hash,
-            'status' => 'deactivated'
+            User::EMAIL_COLUMN => $email,
+            User::PASSWORD_COLUMN => $password_hash,
+            User::STATUS_COLUMN => User::DEACTIVATED_STATUS,
+            User::OTP_CODE_COLUMN => $otpCode,
+            User::VALID_OTP_TIME_COLUMN => $timeExpireOtp
         ];
         $this->user_model->create($createData);
+
+        // Send email to user
+
     }
 }
