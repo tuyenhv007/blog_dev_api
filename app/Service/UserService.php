@@ -64,5 +64,24 @@ class UserService
         return $email;
     }
 
+    public function activeAccount($request)
+    {
+        $email =  $request->get('email');
+        $otpCode = $request->get('otpCode');
+        $currentTime = Carbon::now();
+//        var_dump('text_key: ' . $currentTime);
+//        die();
+        $userRecord = $this->user_model->findOne([
+            User::EMAIL_COLUMN => $email,
+            User::OTP_CODE_COLUMN => $otpCode,
+            User::VALID_OTP_TIME_COLUMN => ['<' => $currentTime]
+            ]);
+        echo "<pre>";
+        echo '$userRecord: ';
+        print_r($userRecord);
+        echo "</pre>";
+        die();
+    }
+
 
 }

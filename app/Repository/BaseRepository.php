@@ -141,11 +141,18 @@ abstract class BaseRepository implements BaseInterface
 
     public function find_one($key, $value)
     {
-        // TODO: Implement find_one() method.
+        $query = $this->model;
+        $query = $query->where($key, $value);
+        return $query->first();
     }
 
     public function count($condition)
     {
-        // TODO: Implement count() method.
+        $query = $this->model;
+        foreach ($condition as $key => $value) {
+            $query = $query->where($key, $value);
+        }
+        return $query
+            ->count();
     }
 }
