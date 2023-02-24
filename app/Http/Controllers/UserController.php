@@ -30,8 +30,9 @@ class UserController extends Controller
 
     public function signUp(Request $request)
     {
+//        var_dump(csrf_token());
+//        die();
         $validate = $this->userService->validateCreateUser($request);
-
         if ($validate->fails()) {
             return \response()->json([
                 'status' => Response::HTTP_BAD_REQUEST,

@@ -3,11 +3,13 @@
 namespace App\Service;
 
 use App\Models\User;
+use App\Jobs\SendEmail;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 
 class UserService
 {
@@ -52,6 +54,19 @@ class UserService
         $this->user_model->create($createData);
 
         // Send email to user
+        $users[] = $email;
+        $sendMailData = [
+            'subject' => 'Kích hoa tài khoản Blog',
+            'template' => 'receive_otp',
+            'data' => $otpCode
+        ];
+        SendEmail::dispatch($users, $sendMailData);
+
+
+
+
 
     }
+
+
 }
