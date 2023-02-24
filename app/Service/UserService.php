@@ -56,16 +56,12 @@ class UserService
         // Send email to user
         $users[] = $email;
         $sendMailData = [
-            'subject' => 'Kích hoa tài khoản Blog',
+            'subject' => 'Kích hoạt tài khoản Blog',
             'template' => 'receive_otp',
             'data' => $otpCode
         ];
         SendEmail::dispatch($users, $sendMailData);
-
-
-
-
-
+        return $email;
     }
 
 

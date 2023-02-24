@@ -18,9 +18,9 @@
         <h2 style="color: #2d3748">KÍCH HOẠT TÀI KHOẢN</h2>
         <p style="font-size: 16px;">
             Mã OTP để kích hoạt tài khoản trên blog.develop của bạn là: <br>
-            <span style="color: #f27d00;">{{$data}}</span>
+            <span style="color: #f27d00;">{{ $data }}</span>
         </p>
-        <p>(<span class="text-danger">*</span>) <i>Lưy ý: Mã OTP chỉ có hiệu lực trong vòng 10 phút</i></p>
+        <p>(<span class="text-danger">*</span>) <i>Lưu ý: Mã OTP chỉ có hiệu lực trong vòng 10 phút</i></p>
     </div>
 </body>
 </html>

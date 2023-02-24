@@ -18,3 +18,4 @@ Route::get('/',function () {
     return view('welcome');
 });
 Route::post('/user/signup',[UserController::class,'signUp']);
+Route::post('/user/active',[UserController::class,'activeAccount']);
