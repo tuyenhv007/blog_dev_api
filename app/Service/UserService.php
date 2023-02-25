@@ -78,9 +78,9 @@ class UserService
         $email =  $request->get('email');
         $otpCode = $request->get('otpCode');
         $currentTime = Carbon::now();
-        $userRecord = $this->user_model->findOne([User::EMAIL_COLUMN => $email, User::OTP_CODE_COLUMN => $otpCode]);
+        $userRecord = $this->user_model->findOneSelect([User::EMAIL_COLUMN => $email, User::OTP_CODE_COLUMN => $otpCode],[ID_COLUMN, User::OTP_EXPIRY_TIME_COLUMN]);
         if (!$userRecord) {
-            $message[] = 'Mã OTP không chính xác!';
+            $message[] = 'Bạn chưa đăng ký tài khoản';
         } else {
             if ($userRecord['otpExpiryTime'] < $currentTime) {
                 $message[] = 'Mã OTP đã quá hạn!';
