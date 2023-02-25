@@ -36,6 +36,10 @@ class UserService
         return $validate;
     }
 
+    /** Tạo mới người dùng
+     * @param $request
+     * @return mixed
+     */
     public function createUser($request)
     {
         $email = $request->get('email');
@@ -64,23 +68,30 @@ class UserService
         return $email;
     }
 
+    /** Kiểm tra và kích hoạt tài khoản
+     * @param $request
+     * @return array
+     */
     public function activeAccount($request)
     {
+        $message = [];
         $email =  $request->get('email');
         $otpCode = $request->get('otpCode');
         $currentTime = Carbon::now();
-//        var_dump('text_key: ' . $currentTime);
-//        die();
-        $userRecord = $this->user_model->findOne([
-            User::EMAIL_COLUMN => $email,
-            User::OTP_CODE_COLUMN => $otpCode,
-            User::VALID_OTP_TIME_COLUMN => ['<' => $currentTime]
-            ]);
-        echo "<pre>";
-        echo '$userRecord: ';
-        print_r($userRecord);
-        echo "</pre>";
-        die();
+        $userRecord = $this->user_model->findOne([User::EMAIL_COLUMN => $email, User::OTP_CODE_COLUMN => $otpCode]);
+        if (!$userRecord) {
+            $message[] = 'Mã OTP không chính xác!';
+        } else {
+            if ($userRecord['validOtpTime'] < $currentTime) {
+                $message[] = 'Mã OTP đã quá hạn!';
+            } else {
+                $this->user_model->update($userRecord['id'], [
+                    User::STATUS_COLUMN => User::ACTIVE_STATUS,
+                    User::ACTIVATED_AT_COLUMN => $currentTime
+                ]);
+            }
+        }
+        return $message;
     }
 
 
