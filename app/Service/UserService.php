@@ -45,15 +45,13 @@ class UserService
         $email = $request->get('email');
         $password = $request->get('password');
         $password_hash = Hash::make($password);
-        $otpCode = rand(100000, 999999);
-        $currentTime = Carbon::now();
-        $timeExpireOtp = $currentTime->addMinutes(10)->format('Y-m-d H:i:s');
+        $otpInfo = $this->generateOtp(TIME_EXPIRE_OTP);
         $createData = [
             User::EMAIL_COLUMN => $email,
             User::PASSWORD_COLUMN => $password_hash,
             User::STATUS_COLUMN => User::DEACTIVATED_STATUS,
-            User::OTP_CODE_COLUMN => $otpCode,
-            User::VALID_OTP_TIME_COLUMN => $timeExpireOtp
+            User::OTP_CODE_COLUMN => $otpInfo['otpCode'],
+            User::VALID_OTP_TIME_COLUMN => $otpInfo['timeExpire']
         ];
         $this->user_model->create($createData);
 
@@ -62,7 +60,7 @@ class UserService
         $sendMailData = [
             'subject' => 'Kích hoạt tài khoản Blog',
             'template' => 'receive_otp',
-            'data' => $otpCode
+            'data' => $otpInfo['otpCode']
         ];
         SendEmail::dispatch($users, $sendMailData);
         return $email;
@@ -92,6 +90,29 @@ class UserService
             }
         }
         return $message;
+    }
+
+
+    public function getOtpAgain($email)
+    {
+//        $userRecord =
+    }
+
+    /** Generate otp code by validity (minutes)
+     * @param $validity
+     * @return array
+     */
+    public function generateOtp($validity)
+    {
+        $result = [];
+        $currentTime = Carbon::now();
+        $otpCode = rand(100000, 999999);
+        $timeExpireOtp = $currentTime->addMinutes($validity)->format('Y-m-d H:i:s');
+        $result = [
+            'otpCode' => $otpCode,
+            'timeExpire' => $timeExpireOtp
+        ];
+        return $result;
     }
 
 

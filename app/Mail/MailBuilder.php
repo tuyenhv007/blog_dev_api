@@ -31,7 +31,7 @@ class MailBuilder extends Mailable
      */
     public function build()
     {
-        $template = 'template.email.' . $this->emailInfo['template'];
+        $template = EMAIL_TEMPLATE_PATH . $this->emailInfo['template'];
         return $this->from(env("MAIL_USERNAME"))
             ->subject($this->emailInfo['subject'])
             ->view($template, [

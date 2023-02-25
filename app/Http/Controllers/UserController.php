@@ -31,7 +31,7 @@ class UserController extends Controller
         die();
     }
 
-    /** Đăng ký mới tài khoản
+    /** Đăng ký mới tài khoản (email, password)
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -55,7 +55,7 @@ class UserController extends Controller
     }
 
     /** Kích hoạt tài khoản
-     * @param Request $request
+     * @param Request $request (email, otpCode)
      * @return \Illuminate\Http\JsonResponse
      */
     public function activeAccount(Request $request)
@@ -73,6 +73,12 @@ class UserController extends Controller
             ];
         }
         return \response()->json($response);
+    }
+
+    public function getOtpAgain(Request $request)
+    {
+        $emailUser = $request->get('email');
+        $otpCode = $this->userService->getOtpAgain($emailUser);
     }
 
 
