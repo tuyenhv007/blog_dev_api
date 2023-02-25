@@ -16,16 +16,14 @@ class User extends BaseModel
     const EMAIL_COLUMN = 'email';
     const PASSWORD_COLUMN = 'password';
     const OTP_CODE_COLUMN = 'otpCode';
-    const VALID_OTP_TIME_COLUMN = 'validOtpTime';
+    const OTP_EXPIRY_TIME_COLUMN = 'otpExpiryTime';
+    const OTP_RESEND_TIME_COLUMN = 'otpResendTime';
     const STATUS_COLUMN = 'status';
     const AVATAR_COLUMN = 'avatar';
     const WEB_TOKEN_COLUMN = 'webToken';
     const ACTIVATED_AT_COLUMN = 'activatedAt';
     const IS_LOGIN_COLUMN = 'isLogin';
     const LAST_LOGIN_AT_COLUMN = 'lastLoginAt';
-
-    const ACTIVE_STATUS = 'active';
-    const DEACTIVATED_STATUS = 'deactivated';
 
     protected $table = 'users';
 

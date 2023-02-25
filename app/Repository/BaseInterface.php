@@ -24,7 +24,7 @@ interface BaseInterface
 
     public function findOne($condition);
 
-    public function findMany($condition);
+    public function findAll($condition);
 
     public function findOneDesc($condition);
 
@@ -33,6 +33,8 @@ interface BaseInterface
     public function findOneSortColumn($condition, $colum, $sort);
 
     public function find_one($key, $value);
+
+    public function find_one_select($key, $value, $select);
 
     public function count($condition);
 }

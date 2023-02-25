@@ -40,16 +40,16 @@ class UserController extends Controller
         $validate = $this->userService->validateCreateUser($request);
         if ($validate->fails()) {
             return \response()->json([
-                Controller::STATUS => Response::HTTP_BAD_REQUEST,
-                Controller::MESSAGE => $validate->errors()
+                self::STATUS => Response::HTTP_BAD_REQUEST,
+                self::MESSAGE => $validate->errors()
             ]);
         }
         $userCreate = $this->userService->createUser($request);
         // Send email
         return \response()->json([
-            Controller::STATUS => Response::HTTP_OK,
-            Controller::MESSAGE => 'Success!',
-            Controller::DATA => $userCreate
+            self::STATUS => Response::HTTP_OK,
+            self::MESSAGE => 'Success!',
+            self::DATA => $userCreate
         ]);
 
     }
@@ -63,22 +63,38 @@ class UserController extends Controller
         $errorMsg = $this->userService->activeAccount($request);
         if (count($errorMsg) > 0) {
             $response = [
-                Controller::STATUS => Response::HTTP_BAD_REQUEST,
-                Controller::MESSAGE => $errorMsg[0]
+                self::STATUS => Response::HTTP_BAD_REQUEST,
+                self::MESSAGE => $errorMsg[0]
             ];
         } else {
             $response = [
-                Controller::STATUS => Response::HTTP_OK,
-                Controller::MESSAGE => 'Kích hoạt tài khoản thành công!'
+                self::STATUS => Response::HTTP_OK,
+                self::MESSAGE => 'Kích hoạt tài khoản thành công!'
             ];
         }
         return \response()->json($response);
     }
 
-    public function getOtpAgain(Request $request)
+    /** get OTP code again for user
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resendOtp(Request $request)
     {
         $emailUser = $request->get('email');
         $otpCode = $this->userService->getOtpAgain($emailUser);
+        if (isset($otpCode['message'])) {
+            $response = [
+                self::STATUS => Response::HTTP_BAD_REQUEST,
+                self::MESSAGE => $otpCode['message']
+            ];
+        } else {
+            $response = [
+                self::STATUS => Response::HTTP_OK,
+                self::DATA => $otpCode['data']
+            ];
+        }
+        return \response()->json($response);
     }
 
 

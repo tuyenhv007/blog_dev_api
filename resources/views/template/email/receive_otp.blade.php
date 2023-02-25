@@ -15,12 +15,17 @@
 </head>
 <body>
     <div>
-        <h2 style="color: #2d3748">KÍCH HOẠT TÀI KHOẢN</h2>
         <p style="font-size: 16px;">
-            Mã OTP để kích hoạt tài khoản trên blog.develop của bạn là: <br>
-            <span style="color: #f27d00;">{{ $data }}</span>
+            <span style="color: #f27d00; font-weight: bold;">{{ $data }}</span> -
+            <span style="color: #500050;">là mã OTP để kích hoạt tài khoản của bạn trên blog.develop.</span>
         </p>
-        <p>(<span class="text-danger">*</span>) <i>Lưu ý: Mã OTP chỉ có hiệu lực trong vòng 10 phút</i></p>
+        <p>
+            <i>(<span style="color: red;">*</span>) Lưu ý: <br>
+                - Mã OTP chỉ có hiệu lực trong vòng 05 phút; <br>
+                - Nếu mã OTP quá hạn, vui lòng sử dụng tính năng "Gửi lại OTP".
+            </i>
+        </p>
+        <p>Trân trọng!</p>
     </div>
 </body>
 </html>

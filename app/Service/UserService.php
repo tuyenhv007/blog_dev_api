@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class UserService
 {
     private $user_model;
+    public $message = [];
 
     public function __construct(UserRepository $userRepository)
     {
@@ -45,22 +46,23 @@ class UserService
         $email = $request->get('email');
         $password = $request->get('password');
         $password_hash = Hash::make($password);
-        $otpInfo = $this->generateOtp(TIME_EXPIRE_OTP);
+        $otpInfo = $this->generateOtp();
         $createData = [
             User::EMAIL_COLUMN => $email,
             User::PASSWORD_COLUMN => $password_hash,
-            User::STATUS_COLUMN => User::DEACTIVATED_STATUS,
-            User::OTP_CODE_COLUMN => $otpInfo['otpCode'],
-            User::VALID_OTP_TIME_COLUMN => $otpInfo['timeExpire']
+            User::STATUS_COLUMN => DEACTIVATED_STATUS,
+            User::OTP_CODE_COLUMN => $otpInfo['code'],
+            User::OTP_EXPIRY_TIME_COLUMN => $otpInfo['expiryTime'],
+            User::OTP_RESEND_TIME_COLUMN => $otpInfo['resendTime'],
         ];
         $this->user_model->create($createData);
 
         // Send email to user
         $users[] = $email;
         $sendMailData = [
-            'subject' => 'Kích hoạt tài khoản Blog',
+            'subject' => 'Kích hoạt tài khoản',
             'template' => 'receive_otp',
-            'data' => $otpInfo['otpCode']
+            'data' => $otpInfo['code']
         ];
         SendEmail::dispatch($users, $sendMailData);
         return $email;
@@ -80,11 +82,11 @@ class UserService
         if (!$userRecord) {
             $message[] = 'Mã OTP không chính xác!';
         } else {
-            if ($userRecord['validOtpTime'] < $currentTime) {
+            if ($userRecord['otpExpiryTime'] < $currentTime) {
                 $message[] = 'Mã OTP đã quá hạn!';
             } else {
                 $this->user_model->update($userRecord['id'], [
-                    User::STATUS_COLUMN => User::ACTIVE_STATUS,
+                    User::STATUS_COLUMN => ACTIVE_STATUS,
                     User::ACTIVATED_AT_COLUMN => $currentTime
                 ]);
             }
@@ -92,25 +94,50 @@ class UserService
         return $message;
     }
 
-
+    /** Resend OTP code for user
+     * @param $email
+     * @return array['otpCode'] or message
+     */
     public function getOtpAgain($email)
     {
-//        $userRecord =
+        $result = [];
+        $userRecord = $this->user_model->findOneSelect([User::EMAIL_COLUMN => $email], [ID_COLUMN, User::EMAIL_COLUMN, User::OTP_RESEND_TIME_COLUMN]);
+        if (!$userRecord) {
+            $result['message'] = 'Tài khoản chưa được đăng ký';
+        } else {
+            $currentTime = Carbon::now();
+            $otpCode = $this->generateOtp();
+            /* Delay resend OTP */
+            if ($currentTime < $userRecord['otpResendTime']) {
+                $result['message'] = 'Vui lòng gửi lại sau giây lát';
+            } else {
+                $updateInfo = [
+                    User::OTP_CODE_COLUMN => $otpCode['code'],
+                    User::OTP_EXPIRY_TIME_COLUMN => $otpCode['expiryTime'],
+                    User::OTP_RESEND_TIME_COLUMN => $otpCode['resendTime']
+                ];
+                $this->user_model->update($userRecord['id'], $updateInfo);
+                $result['data'] = $otpCode['code'];
+            }
+        }
+        return $result;
     }
 
-    /** Generate otp code by validity (minutes)
-     * @param $validity
-     * @return array
+    /** Generate otp code by validity time (minutes)
+     * @param $validityTime
+     * @return array['code', 'expiryTime', 'resendTime']
      */
-    public function generateOtp($validity)
+    public function generateOtp()
     {
         $result = [];
-        $currentTime = Carbon::now();
         $otpCode = rand(100000, 999999);
-        $timeExpireOtp = $currentTime->addMinutes($validity)->format('Y-m-d H:i:s');
+        $currentTime = Carbon::now();
+        $otpExpiryTime = $currentTime->addMinutes(OTP_EXPIRY_TIME)->format('Y-m-d H:i:s');
+        $otpResendTime = $currentTime->addMinutes(OTP_RESEND_TIME)->format('Y-m-d H:i:s');
         $result = [
-            'otpCode' => $otpCode,
-            'timeExpire' => $timeExpireOtp
+            'code' => $otpCode,
+            'expiryTime' => $otpExpiryTime,
+            'resendTime' => $otpResendTime,
         ];
         return $result;
     }

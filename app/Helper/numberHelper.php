@@ -1,6 +1,9 @@
 <?php
 
 /*Global CONSTANT is number*/
-const TIME_EXPIRE_OTP = 5;
+const OTP_EXPIRY_TIME = 5; // Minutes
+const OTP_RESEND_TIME = 1; // Minute
+
+
 
 

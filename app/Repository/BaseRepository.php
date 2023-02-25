@@ -10,6 +10,7 @@ abstract class BaseRepository implements BaseInterface
     const ASC_SORT = 'ASC';
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
+
     protected $model;
 
     public function __construct()
@@ -59,6 +60,21 @@ abstract class BaseRepository implements BaseInterface
             return true;
         }
         return false;
+    }
+
+    public function queryByConditions($condition)
+    {
+        $query = $this->model;
+        foreach ($condition as $nameColumn => $valueColumn) {
+            if (is_array($valueColumn)) {
+                $operator = $valueColumn[0];
+                $searchValue = $valueColumn[1];
+                $query = $query->where($nameColumn, $operator, $searchValue);
+            } else {
+                $query = $query->where($nameColumn, $valueColumn);
+            }
+        }
+        return $query;
     }
 
     public function toggleActive($id)
@@ -112,16 +128,26 @@ abstract class BaseRepository implements BaseInterface
 
     public function findOne($condition)
     {
-        $query = $this->model;
-        foreach ($condition as $key => $item) {
-            $query = $query->where($key, $item);
-        }
+        $query = $this->queryByConditions($condition);
         return $query->first();
     }
 
-    public function findMany($condition)
+    public function findOneSelect($condition, $select = [])
     {
+        $query = $this->queryByConditions($condition);
+        return $query->select($select)->first();
+    }
 
+    public function findAll($condition)
+    {
+        $query = $this->queryByConditions($condition);
+        return $query->get();
+    }
+
+    public function findAllSelect($condition, $select = [])
+    {
+        $query = $this->queryByConditions($condition);
+        return $query->select($select)->get();
     }
 
     public function findOneDesc($condition)
@@ -144,6 +170,13 @@ abstract class BaseRepository implements BaseInterface
         $query = $this->model;
         $query = $query->where($key, $value);
         return $query->first();
+    }
+
+    public function find_one_select($key, $value, $select)
+    {
+        $query = $this->model;
+        $query = $query->where($key, $value);
+        return $query->first()->select($select);
     }
 
     public function count($condition)
