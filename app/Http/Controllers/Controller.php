@@ -11,8 +11,5 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    const STATUS = 'status';
-    const MESSAGE = 'message';
-    const DATA = 'data';
 
 }

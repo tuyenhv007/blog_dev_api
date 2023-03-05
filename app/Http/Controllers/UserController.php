@@ -40,16 +40,16 @@ class UserController extends Controller
         $validate = $this->userService->validateCreateUser($request);
         if ($validate->fails()) {
             return \response()->json([
-                self::STATUS => Response::HTTP_BAD_REQUEST,
-                self::MESSAGE => $validate->errors()
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => $validate->errors()
             ]);
         }
         $userCreate = $this->userService->createUser($request);
         // Send email
         return \response()->json([
-            self::STATUS => Response::HTTP_OK,
-            self::MESSAGE => 'Đăng ký tài khoản thành công!',
-            self::DATA => $userCreate
+            STATUS => Response::HTTP_OK,
+            MESSAGE => 'Đăng ký tài khoản thành công!',
+            DATA => $userCreate
         ]);
 
     }
@@ -63,13 +63,13 @@ class UserController extends Controller
         $errorMsg = $this->userService->activeAccount($request);
         if (count($errorMsg) > 0) {
             $response = [
-                self::STATUS => Response::HTTP_BAD_REQUEST,
-                self::MESSAGE => $errorMsg[0]
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => $errorMsg[0]
             ];
         } else {
             $response = [
-                self::STATUS => Response::HTTP_OK,
-                self::MESSAGE => 'Kích hoạt tài khoản thành công!'
+                STATUS => Response::HTTP_OK,
+                MESSAGE => 'Kích hoạt tài khoản thành công!'
             ];
         }
         return \response()->json($response);
@@ -85,13 +85,13 @@ class UserController extends Controller
         $otpCode = $this->userService->getOtpAgain($emailUser);
         if (isset($otpCode['message'])) {
             $response = [
-                self::STATUS => Response::HTTP_BAD_REQUEST,
-                self::MESSAGE => $otpCode['message']
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => $otpCode['message']
             ];
         } else {
             $response = [
-                self::STATUS => Response::HTTP_OK,
-                self::DATA => $otpCode['data']
+                STATUS => Response::HTTP_OK,
+                DATA => $otpCode['data']
             ];
         }
         return \response()->json($response);

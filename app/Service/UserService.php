@@ -37,6 +37,22 @@ class UserService
         return $validate;
     }
 
+    /** Validate đăng nhập
+     * @param $request
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    public function validateSignIn($request)
+    {
+        $validate = Validator::make($request->all(), [
+            'email' => 'required',
+            'password' => 'required'
+        ],[
+            'email.required' => 'Bạn chưa nhập email',
+            'password.required' => 'Bạn chưa nhập mật khẩu'
+        ]);
+        return $validate;
+    }
+
     /** Tạo mới người dùng
      * @param $request
      * @return mixed
@@ -144,6 +160,28 @@ class UserService
         ];
         return $result;
     }
+
+    /** Get one User by Email
+     * @param $request
+     * @return mixed
+     */
+    public function getUserByEmail($request)
+    {
+        $email = $request->get('email');
+        $user = $this->user_model->findOneSelect([
+            User::EMAIL_COLUMN => $email,
+            User::STATUS_COLUMN => ACTIVE_STATUS
+        ], ['id', 'email', 'password']);
+        return $user;
+    }
+
+    public function checkPassWord($passwordInput, $passwordDatabase)
+    {
+        $isPassword = Hash::check($passwordInput, $passwordDatabase);
+        return $isPassword;
+    }
+
+
 
 
 }
