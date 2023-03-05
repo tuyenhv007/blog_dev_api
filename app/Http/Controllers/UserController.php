@@ -48,7 +48,7 @@ class UserController extends Controller
         // Send email
         return \response()->json([
             self::STATUS => Response::HTTP_OK,
-            self::MESSAGE => 'Success!',
+            self::MESSAGE => 'Đăng ký tài khoản thành công!',
             self::DATA => $userCreate
         ]);
 

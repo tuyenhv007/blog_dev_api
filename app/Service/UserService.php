@@ -78,9 +78,12 @@ class UserService
         $email =  $request->get('email');
         $otpCode = $request->get('otpCode');
         $currentTime = Carbon::now();
-        $userRecord = $this->user_model->findOneSelect([User::EMAIL_COLUMN => $email, User::OTP_CODE_COLUMN => $otpCode],[ID_COLUMN, User::OTP_EXPIRY_TIME_COLUMN]);
+        $userRecord = $this->user_model->findOneSelect([
+            User::EMAIL_COLUMN => $email,
+            User::OTP_CODE_COLUMN => $otpCode],
+            [ID_COLUMN, User::OTP_EXPIRY_TIME_COLUMN]);
         if (!$userRecord) {
-            $message[] = 'Bạn chưa đăng ký tài khoản';
+            $message[] = 'Mã OTP không chính xác!';
         } else {
             if ($userRecord['otpExpiryTime'] < $currentTime) {
                 $message[] = 'Mã OTP đã quá hạn!';
@@ -132,7 +135,7 @@ class UserService
         $result = [];
         $otpCode = rand(100000, 999999);
         $currentTime = Carbon::now();
-        $otpExpiryTime = $currentTime->addMinutes(OTP_EXPIRY_TIME)->format('Y-m-d H:i:s');
+        $otpExpiryTime = $currentTime->copy()->addMinutes(OTP_EXPIRY_TIME)->format('Y-m-d H:i:s');
         $otpResendTime = $currentTime->addMinutes(OTP_RESEND_TIME)->format('Y-m-d H:i:s');
         $result = [
             'code' => $otpCode,
