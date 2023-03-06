@@ -33,14 +33,14 @@ class AuthController extends Controller
                 MESSAGE => $validate->errors()
             ]);
         }
-        $user = $this->userService->getUserByEmail($request->get('email'));
+        $user = $this->userService->getUserByEmail($request->email);
         if (!$user) {
             return \response()->json([
                 STATUS => Response::HTTP_BAD_REQUEST,
                 MESSAGE => 'Tài khoản không đúng'
             ]);
         }
-        $isPassword = $this->userService->checkPassWord($request->get('password'), $user['password']);
+        $isPassword = $this->userService->checkPassWord($request->password, $user['password']);
         if (!$isPassword) {
             return \response()->json([
                 STATUS => Response::HTTP_BAD_REQUEST,

@@ -81,7 +81,7 @@ class UserController extends Controller
      */
     public function resendOtp(Request $request)
     {
-        $emailUser = $request->get('email');
+        $emailUser = $request->email;
         $otpCode = $this->userService->getOtpAgain($emailUser);
         if (isset($otpCode['message'])) {
             $response = [
