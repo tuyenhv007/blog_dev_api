@@ -221,6 +221,20 @@ class UserService
         return $user;
     }
 
+    public function checkUser($request)
+    {
+        $message = [];
+        $user = $this->getUserByEmail($request->email);
+        if (!$user) {
+            $message[] = 'Tài khoản không đúng';
+        }
+        $isPassword = $this->checkPassWord($request->password, $user['password']);
+        if (!$isPassword) {
+            $message[] = 'Mật khẩu không chính xác';
+        }
+        return $message;
+    }
+
     /** Check hash password
      * @param $passwordInput
      * @param $passwordDatabase

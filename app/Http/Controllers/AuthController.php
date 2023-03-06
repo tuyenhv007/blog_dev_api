@@ -33,19 +33,13 @@ class AuthController extends Controller
                 MESSAGE => $validate->errors()
             ]);
         }
-        $user = $this->userService->getUserByEmail($request->email);
-        if (!$user) {
-            return \response()->json([
+        $errorMsg = $this->userService->checkUser($request);
+        if (count($errorMsg) > 0) {
+            $response = [
                 STATUS => Response::HTTP_BAD_REQUEST,
-                MESSAGE => 'Tài khoản không đúng'
-            ]);
-        }
-        $isPassword = $this->userService->checkPassWord($request->password, $user['password']);
-        if (!$isPassword) {
-            return \response()->json([
-                STATUS => Response::HTTP_BAD_REQUEST,
-                MESSAGE => 'Mật khẩu không chính xác'
-            ]);
+                MESSAGE => $errorMsg[0]
+            ];
+            return response()->json($response);
         }
         $currentTime = Carbon::now()->format('Y-m-d H:i:s');
         $payLoad = [
@@ -55,15 +49,16 @@ class AuthController extends Controller
             'time' => $currentTime
         ];
         $webToken = Authorization::generateToken($payLoad);
-        $userUpdate = $this->userModel->update($user['id'], [
-                User::WEB_TOKEN_COLUMN => $webToken,
-                User::LAST_LOGIN_AT_COLUMN => $currentTime,
-                User::IS_LOGIN_COLUMN => true
-        ]);
+        $dataUpdate = [
+            User::WEB_TOKEN_COLUMN => $webToken,
+            User::LAST_LOGIN_AT_COLUMN => $currentTime,
+            User::IS_LOGIN_COLUMN => true
+        ];
+        $userUpdate = $this->userModel->update($user['id'], $dataUpdate);
         $response = [
             STATUS => Response::HTTP_OK,
             MESSAGE => 'Đăng nhập thành công',
-            'webToken' => $webToken,
+            User::WEB_TOKEN_COLUMN => $webToken,
             DATA => $userUpdate
         ];
         return response()->json($response);
