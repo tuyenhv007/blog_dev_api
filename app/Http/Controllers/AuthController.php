@@ -77,24 +77,27 @@ class AuthController extends Controller
     {
         $validate = $this->userService->validateChangePassword($request);
         if ($validate->fails()) {
-            return response()->json([
+            $response = [
                 STATUS => Response::HTTP_BAD_REQUEST,
                 MESSAGE => $validate->errors()
-            ]);
+            ];
+            return response()->json($response);
         }
         $message = $this->userService->checkValidPassword($request);
         if (count($message) > 0) {
-            return response()->json([
+            $response = [
                 STATUS => Response::HTTP_BAD_REQUEST,
                 MESSAGE => $message[0]
-            ]);
+            ];
+        } else {
+            $userUpdate = $this->userService->updatePassword($request);
+            $response = [
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => SUCCESS_MESSAGE,
+                DATA => $userUpdate
+            ];
         }
-        $userUpdate = $this->userService->updatePassword($request);
-        return response()->json([
-            STATUS => Response::HTTP_BAD_REQUEST,
-            MESSAGE => SUCCESS_MESSAGE,
-            DATA => $userUpdate
-        ]);
+        return response()->json($response);
     }
 
 
