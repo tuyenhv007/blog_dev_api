@@ -20,6 +20,10 @@ class AuthController extends Controller
         $this->userModel = $userRepository;
     }
 
+    /** Sign in
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function signIn(Request $request)
     {
         $validate = $this->userService->validateSignIn($request);
@@ -29,7 +33,7 @@ class AuthController extends Controller
                 MESSAGE => $validate->errors()
             ]);
         }
-        $user = $this->userService->getUserByEmail($request);
+        $user = $this->userService->getUserByEmail($request->get('email'));
         if (!$user) {
             return \response()->json([
                 STATUS => Response::HTTP_BAD_REQUEST,
@@ -63,6 +67,34 @@ class AuthController extends Controller
             DATA => $userUpdate
         ];
         return response()->json($response);
+    }
+
+    /** Change password for User
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changePassword(Request $request)
+    {
+        $validate = $this->userService->validateChangePassword($request);
+        if ($validate->fails()) {
+            return response()->json([
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => $validate->errors()
+            ]);
+        }
+        $message = $this->userService->checkValidPassword($request);
+        if (count($message) > 0) {
+            return response()->json([
+                STATUS => Response::HTTP_BAD_REQUEST,
+                MESSAGE => $message[0]
+            ]);
+        }
+        $userUpdate = $this->userService->updatePassword($request);
+        return response()->json([
+            STATUS => Response::HTTP_BAD_REQUEST,
+            MESSAGE => SUCCESS_MESSAGE,
+            DATA => $userUpdate
+        ]);
     }
 
 

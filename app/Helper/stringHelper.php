@@ -3,6 +3,7 @@
 const EMAIL_TEMPLATE_PATH = 'template.email.';
 const STATUS = 'status';
 const MESSAGE = 'message';
+const SUCCESS_MESSAGE = 'Thành công';
 const DATA = 'data';
 const ACTIVE_STATUS = 'active';
 const DEACTIVATED_STATUS = 'deactivated';

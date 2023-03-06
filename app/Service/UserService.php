@@ -13,26 +13,30 @@ use Illuminate\Support\Facades\Validator;
 
 class UserService
 {
-    private $user_model;
+    private $userModel;
     public $message = [];
 
     public function __construct(UserRepository $userRepository)
     {
-        $this->user_model = $userRepository;
+        $this->userModel = $userRepository;
     }
 
+    /** Validate create new User
+     * @param $request
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
     public function validateCreateUser($request)
     {
         $validate = Validator::make($request->all(), [
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:8'
+            'email'                     => 'required|email|max:255|unique:users',
+            'password'                  => 'required|min:8'
         ], [
-            'email.required' => 'Bạn chưa nhập email!',
-            'email.email' => 'Email không đúng định dạng!',
-            'email.max' => 'Độ dài email không hợp lệ!',
-            'email.unique' => 'Email đã tồn tại!',
-            'password.required' => 'Bạn chưa nhập mật khẩu!',
-            'password.min' => 'Mật khẩu tối thiểu 8 kí tự!'
+            'email.required'            => 'Bạn chưa nhập email!',
+            'email.email'               => 'Email không đúng định dạng!',
+            'email.max'                 => 'Độ dài email không hợp lệ!',
+            'email.unique'              => 'Email đã tồn tại!',
+            'password.required'         => 'Bạn chưa nhập mật khẩu!',
+            'password.min'              => 'Mật khẩu tối thiểu 8 kí tự!'
         ]);
         return $validate;
     }
@@ -44,13 +48,56 @@ class UserService
     public function validateSignIn($request)
     {
         $validate = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required'
+            'email'                     => 'required',
+            'password'                  => 'required'
         ],[
-            'email.required' => 'Bạn chưa nhập email',
-            'password.required' => 'Bạn chưa nhập mật khẩu'
+            'email.required'            => 'Bạn chưa nhập email',
+            'password.required'         => 'Bạn chưa nhập mật khẩu'
         ]);
         return $validate;
+    }
+
+    /** Validate đổi mật khẩu
+     * @param $request
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    public function validateChangePassword($request)
+    {
+        $validate = Validator::make($request->all(), [
+            'currentPassword'           => 'required',
+            'newPassword'               => 'required|min:8|max:30',
+            'reNewPassword'             => 'same:newPassword'
+        ],[
+            'currentPassword.required'  => 'Bạn chưa nhập mật khẩu cũ',
+            'newPassword.required'      => 'Bạn chưa nhập mật khẩu mới',
+            'newPassword.min'           => 'Mật khẩu tối thiểu là 8 kí tự',
+            'newPassword.max'           => 'Mật khẩu tối đa là 30 kí tự',
+            'reNewPassword.same'        => 'Mật khẩu mới nhập lại không khớp'
+        ]);
+        return $validate;
+    }
+
+    /** Check valid change password
+     * @param $request
+     * @return array
+     */
+    public function checkValidPassword($request)
+    {
+        $message = [];
+        $currentPassword = $request->currentPassword;
+        $newPassword = $request->newPassword;
+        $user = $this->getUserByEmail($request->email);
+        if (!empty($user['password'])) {
+            $isCurrentPassword = $this->checkPassWord($currentPassword, $user['password']);
+            if (!$isCurrentPassword) {
+                $message[] = 'Mật khẩu hiện tại không đúng';
+            }
+            $isSameOldPassword = $this->checkPassWord($newPassword, $user['password']);
+            if ($isSameOldPassword) {
+                $message[] = 'Mật khẩu mới trùng mật khẩu hiện tại';
+            }
+        }
+        return $message;
     }
 
     /** Tạo mới người dùng
@@ -59,8 +106,8 @@ class UserService
      */
     public function createUser($request)
     {
-        $email = $request->get('email');
-        $password = $request->get('password');
+        $email = $request->email;
+        $password = $request->password;
         $password_hash = Hash::make($password);
         $otpInfo = $this->generateOtp();
         $createData = [
@@ -71,7 +118,7 @@ class UserService
             User::OTP_EXPIRY_TIME_COLUMN => $otpInfo['expiryTime'],
             User::OTP_RESEND_TIME_COLUMN => $otpInfo['resendTime'],
         ];
-        $this->user_model->create($createData);
+        $this->userModel->create($createData);
 
         // Send email to user
         $users[] = $email;
@@ -91,10 +138,10 @@ class UserService
     public function activeAccount($request)
     {
         $message = [];
-        $email =  $request->get('email');
-        $otpCode = $request->get('otpCode');
+        $email =  $request->email;
+        $otpCode = $request->otpCode;
         $currentTime = Carbon::now();
-        $userRecord = $this->user_model->findOneSelect([
+        $userRecord = $this->userModel->findOneSelect([
             User::EMAIL_COLUMN => $email,
             User::OTP_CODE_COLUMN => $otpCode],
             [ID_COLUMN, User::OTP_EXPIRY_TIME_COLUMN]);
@@ -104,7 +151,7 @@ class UserService
             if ($userRecord['otpExpiryTime'] < $currentTime) {
                 $message[] = 'Mã OTP đã quá hạn!';
             } else {
-                $this->user_model->update($userRecord['id'], [
+                $this->userModel->update($userRecord['id'], [
                     User::STATUS_COLUMN => ACTIVE_STATUS,
                     User::ACTIVATED_AT_COLUMN => $currentTime
                 ]);
@@ -120,7 +167,7 @@ class UserService
     public function getOtpAgain($email)
     {
         $result = [];
-        $userRecord = $this->user_model->findOneSelect([User::EMAIL_COLUMN => $email], [ID_COLUMN, User::EMAIL_COLUMN, User::OTP_RESEND_TIME_COLUMN]);
+        $userRecord = $this->userModel->findOneSelect([User::EMAIL_COLUMN => $email], [ID_COLUMN, User::EMAIL_COLUMN, User::OTP_RESEND_TIME_COLUMN]);
         if (!$userRecord) {
             $result['message'] = 'Tài khoản chưa được đăng ký';
         } else {
@@ -135,7 +182,7 @@ class UserService
                     User::OTP_EXPIRY_TIME_COLUMN => $otpCode['expiryTime'],
                     User::OTP_RESEND_TIME_COLUMN => $otpCode['resendTime']
                 ];
-                $this->user_model->update($userRecord['id'], $updateInfo);
+                $this->userModel->update($userRecord['id'], $updateInfo);
                 $result['data'] = $otpCode['code'];
             }
         }
@@ -148,38 +195,59 @@ class UserService
      */
     public function generateOtp()
     {
-        $result = [];
+        $otpInfo = [];
         $otpCode = rand(100000, 999999);
         $currentTime = Carbon::now();
         $otpExpiryTime = $currentTime->copy()->addMinutes(OTP_EXPIRY_TIME)->format('Y-m-d H:i:s');
         $otpResendTime = $currentTime->addMinutes(OTP_RESEND_TIME)->format('Y-m-d H:i:s');
-        $result = [
+        $otpInfo = [
             'code' => $otpCode,
             'expiryTime' => $otpExpiryTime,
             'resendTime' => $otpResendTime,
         ];
-        return $result;
+        return $otpInfo;
     }
 
     /** Get one User by Email
      * @param $request
      * @return mixed
      */
-    public function getUserByEmail($request)
+    public function getUserByEmail($email)
     {
-        $email = $request->get('email');
-        $user = $this->user_model->findOneSelect([
+        $user = $this->userModel->findOneSelect([
             User::EMAIL_COLUMN => $email,
             User::STATUS_COLUMN => ACTIVE_STATUS
         ], ['id', 'email', 'password']);
         return $user;
     }
 
+    /** Check hash password
+     * @param $passwordInput
+     * @param $passwordDatabase
+     * @return bool
+     */
     public function checkPassWord($passwordInput, $passwordDatabase)
     {
         $isPassword = Hash::check($passwordInput, $passwordDatabase);
         return $isPassword;
     }
+
+    /** Update password for user
+     * @param $request
+     * @return bool
+     */
+    public function updatePassword($request)
+    {
+        $hashPassword = Hash::make($request->newPassword);
+        $dataUpdate = [
+            User::PASSWORD_COLUMN => $hashPassword
+        ];
+        $userUpdate = $this->userModel->update($request->id, $dataUpdate);
+        return $userUpdate;
+    }
+
+
+
 
 
 

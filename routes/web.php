@@ -23,3 +23,4 @@ Route::post('/user/signup', [UserController::class, 'signUp']);
 Route::post('/user/active', [UserController::class, 'activeAccount']);
 Route::post('/user/otp_resend', [UserController::class, 'resendOtp']);
 Route::post('/auth/login', [AuthController::class, 'signIn']);
+Route::post('auth/change_password', [AuthController::class, 'changePassword']);
