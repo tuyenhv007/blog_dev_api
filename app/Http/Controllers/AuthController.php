@@ -43,21 +43,24 @@ class AuthController extends Controller
                 MESSAGE => 'Mật khẩu không chính xác'
             ]);
         }
+        $currentTime = Carbon::now()->format('Y-m-d H:i:s');
         $payLoad = [
             ID_COLUMN => $user['id'],
             User::EMAIL_COLUMN => $user['email'],
             User::PASSWORD_COLUMN => $user['password'],
-            'time' => Carbon::now()
+            'time' => $currentTime
         ];
         $webToken = Authorization::generateToken($payLoad);
         $userUpdate = $this->userModel->update($user['id'], [
-                User::WEB_TOKEN_COLUMN => $webToken
+                User::WEB_TOKEN_COLUMN => $webToken,
+                User::LAST_LOGIN_AT_COLUMN => $currentTime,
+                User::IS_LOGIN_COLUMN => true
         ]);
         $response = [
             STATUS => Response::HTTP_OK,
             MESSAGE => 'Đăng nhập thành công',
             'webToken' => $webToken,
-            'data' => $userUpdate
+            DATA => $userUpdate
         ];
         return response()->json($response);
     }
